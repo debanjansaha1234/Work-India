@@ -1,6 +1,7 @@
 const express=require("express");
 const conn =require('../auth/database-auth.js');
 const app=express();
+const jwt=require("jsonwebtoken");
 
 const validator=require('validator');
 
@@ -44,11 +45,21 @@ const loginAdmin=(req,res)=>{
                     res.send({"status":"Incorrect Username/Password provided. Please retry"});
                 }
                 else{
+                    const token = jwt.sign(
+                        {
+                          username:username,
+                          password:password
+                        },
+                        process.env.JWT_SECRET,
+                        {
+                          expiresIn: "7d",
+                        }
+                    );
                     res.send({
                         "status":"Login successfull",
                         "status_code":"200",
                         "user_id":result[0].id,
-                        "access-token":""
+                        "access-token":token
                     });
                 }
             });

@@ -1,7 +1,9 @@
 const express=require("express");
 const conn =require('../auth/database-auth.js');
 const app=express();
-
+const jwt=require("jsonwebtoken");
+const dotenv=require("dotenv");
+dotenv.config();
 const createMatch=(req,res)=>{
     try {
         const {team_1,team_2,date,venue}=req.body;
@@ -9,13 +11,20 @@ const createMatch=(req,res)=>{
             return res.send({error:"Please fill all the details"});
         }
         else{
-            conn.query("INSERT INTO matches SET ?",req.body,(err,result)=>{
-                if(err) throw err;
-                res.send({
-                    "status":"match created successfully",
-                    "match_id":result.insertId
-                });
-            });
+            const token = req.headers.authorization.split(" ")[1];
+            if (token) {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                if(decoded){
+                    conn.query("INSERT INTO matches SET ?",req.body,(err,result)=>{
+                        if(err) throw err;
+                        res.send({
+                            "status":"match created successfully",
+                            "match_id":result.insertId
+                        });
+                    });    
+                }
+            }
+            else res.send({"status":"Please Log in first to use this api"});
         }
     } catch (error) {
         res.send(error);
