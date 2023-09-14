@@ -13,3 +13,5 @@
 ## [GET] /api/matches/{match_id}
 
 ## [GET] /api/players/{player_id}/stats
+
+## Postman collection shared
